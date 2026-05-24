@@ -1,0 +1,84 @@
+/**
+******************************************************************************
+  @file     command_can.c
+  @brief    私有CAN协议
+  @author   Icol Boom <icolboom4@gmail.com>
+  @date     2025-01-30 (Created) | 2026-04-28 (Last modified)
+  @version  v1.0
+  ------------------------------------------------------------------------------
+  CHANGE LOG :
+    - 2026-01-30 [v1.0] Icol Boom: 创建初始版本，完成初步测试
+  ------------------------------------------------------------------------------
+  @example
+    - 关于CAN ID: DEVICE_ID(4bit, (COMMAND_SLAVE << 3)|DEVICE_ADDR) | CMD ID(5bit) | para(2bit)
+  ------------------------------------------------------------------------------
+  @attention
+    - 代码未经测试，谨慎使用
+    - 修改代码后需同步更新版本号、最后修改日期及CHANGE LOG，请务必保证注释清晰明确地
+    让后人知晓如何使用该驱动
+  ******************************************************************************
+  Copyright (c) 2026 ~ -, Sichuan University Pangolin Robot Lab.
+  All rights reserved.
+  ******************************************************************************
+*/
+
+#include "splib.h"
+
+#if USE_SPLIB_CONMMAND
+
+/* Includes ------------------------------------------------------------------*/
+#include "command_can.h"
+
+/* Private define ------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private type --------------------------------------------------------------*/
+/* Private function declarations ---------------------------------------------*/
+/* function prototypes -------------------------------------------------------*/
+
+/**
+ * 发送数据
+ * @param CMD_ID    消息ID COMMAND_CMD_x (5 bits)
+ * @param para      保留位 (2 bits)
+ * @param pData
+ */
+void command_transmit(uint8_t CMD_ID, uint8_t para, uint8_t *pData) {
+    uint16_t std_id = (DEVICE_ID<<7) | (CMD_ID << 2) | (para);
+    CAN_SendStdData(&COMMAND_CAN, std_id, pData, 8);
+}
+
+/**
+ * 接收数据
+ * @param pData
+ */
+void command_receive(CAN_RxBuffer* rxBuffer) {
+    // 处理主控制器信息
+    bool isMaster = (rxBuffer->header.StdId >> 10)&0x1;
+    if (isMaster) {
+        // 主控制器
+
+    }else {
+        // 从控制器
+        uint8_t DeviceAddr = (rxBuffer->header.StdId >> 7)&0x7;
+        uint8_t CmdID = (rxBuffer->header.StdId >> 2)&0x1F;
+
+        switch (DeviceAddr) {
+            // 从设备1
+            case 0x01:
+                switch (CmdID) {
+                    // 命令类型1
+                    case COMMAND_CMD_0: {
+
+                    }
+                        break;
+                    default:
+                        break;
+                }
+            default:
+                break;
+        }
+    }
+}
+
+#endif
+
+/************************ COPYRIGHT(C) Pangolin Robot Lab **************************/
