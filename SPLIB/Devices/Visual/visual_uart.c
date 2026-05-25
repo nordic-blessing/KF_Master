@@ -42,13 +42,22 @@ void Visual_Receive(uint8_t *data) {
     }
 
     switch (visualData.cmd) {
-        case 0x07: {
+        case VISUAL_CMD_Spearhead: {
             visualData.flag = data[2];
             osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_DETECT);
         }
             break;
-        case 0x0A: {
+        case VISUAL_CMD_assemble: {
             osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_ASSEMBLE);
+        }
+            break;
+        case VISUAL_CMD_Arena: {
+            visualData.num = data[2];
+            osEventFlagsSet(KFQEventHandle, EVT_ARENA_VISUAL);
+        }
+            break;
+        case VISUAL_CMD_Arena_Put: {
+            osEventFlagsSet(KFQEventHandle, EVT_ARENA_KFS_PUT);
         }
             break;
         default:
@@ -77,8 +86,8 @@ void Visual_Send(uint8_t CMD) {
             tx_data[2] = 0x00;
         }
         break;
-        case MCU_CMD_Map: {
-            tx_data[2] = MAP;  // 红方
+        case MCU_CMD_Arena: {
+            tx_data[2] = 0x00;
         }
         break;
         default:

@@ -22,18 +22,20 @@
 #define MCU_CMD_Palm2           0x04    // 掌2
 #define MCU_CMD_Fist2           0x05    // 拳2
 #define MCU_CMD_Spear2          0x06    // 矛2
+
 #define VISUAL_CMD_Spearhead    0x07    // 视觉应答武器头
+#define VISUAL_CMD_assemble     0x08    // 视觉发送对接状态
 
-#define MCU_CMD_Map             0x08    // 标记场地颜色
+#define MCU_CMD_Arena           0x09
 
-#define VISUAL_CMD_Path         0x09    // 视觉发送路径
-
-#define VISUAL_CMD_assemble     0x0A    // 视觉发送对接状态
+#define VISUAL_CMD_Arena        0x0A    // 九宫格
+#define VISUAL_CMD_Arena_Put    0x0B
 
 typedef struct {
     uint8_t cmd;
-    uint8_t flag;
     uint8_t data[8];
+    bool flag;
+    uint8_t num;
 }Visual_t;
 
 extern Visual_t visualData;

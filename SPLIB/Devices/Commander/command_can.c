@@ -55,24 +55,57 @@ void command_receive(CAN_RxBuffer* rxBuffer) {
     bool isMaster = (rxBuffer->header.StdId >> 10)&0x1;
     if (isMaster) {
         // 主控制器
-
+        return;
     }else {
         // 从控制器
-        uint8_t DeviceAddr = (rxBuffer->header.StdId >> 7)&0x7;
-        uint8_t CmdID = (rxBuffer->header.StdId >> 2)&0x1F;
+        uint8_t DeviceAddr = (rxBuffer->header.StdId >> 7) & 0x7;
+        uint8_t CmdID = (rxBuffer->header.StdId >> 2) & 0x1F;
 
         switch (DeviceAddr) {
-            // 从设备1
-            case 0x01:
+            // 从设备1 底盘
+            case 0b001:{
                 switch (CmdID) {
-                    // 命令类型1
+                    // 命令0 底盘到达
                     case COMMAND_CMD_0: {
+                        osEventFlagsSet(KFQEventHandle, EVT_CHASSIS_ARRIVAL);
+                    }
+                        break;
 
+                    // 命令1 抬升完成
+                    case COMMAND_CMD_1: {
+                        osEventFlagsSet(KFQEventHandle, EVT_MF_LIFT);
+                    }
+                    default:
+                        break;
+                }
+            }
+                break;
+
+            // 从设备2 机构
+            case 0b010: {
+                switch (CmdID) {
+                    // 命令0 Spear夹取完成
+                    case COMMAND_CMD_0: {
+                        osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_CATCH);
+                    }
+                        break;
+
+                    // 命令1 KFS抓取完成
+                    case COMMAND_CMD_1: {
+                        osEventFlagsSet(KFQEventHandle, EVT_MF_KFS_GRAB);
+                    }
+                        break;
+
+                    // 命令2 KFS放置完成
+                    case COMMAND_CMD_2: {
+                        osEventFlagsSet(KFQEventHandle, EVT_ARENA_KFS_PUT);
                     }
                         break;
                     default:
                         break;
                 }
+            }
+                break;
             default:
                 break;
         }
