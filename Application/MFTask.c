@@ -157,7 +157,7 @@ MF_Node* find_node(MF_Node* target_map, const int8_t id) {
 }
 
 /**
- * 转义规划路径为标准的物理动作序列 (动态节点检索安全版)
+ * 转义规划路径为标准的物理动作序列
  * @param target_map 地图 (Red_map / Blue_map)
  * @param input_path 路径 (PATH)
  * @param path_len   路径长度 (path_len)
