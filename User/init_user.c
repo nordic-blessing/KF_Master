@@ -15,6 +15,7 @@ const char* lift_names[] = {"-", "▲", "▼"};
 void func_fdcan1(CAN_RxBuffer* rxBuffer);
 
 void user_init(void) {
+    DELAY(5000);
     uart_printf("KF_Master\r\n");
     uart_IT_protocol_init();
 

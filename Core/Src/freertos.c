@@ -85,6 +85,7 @@ const osEventFlagsAttr_t KFQEvent_attributes = {
 void StartInitTask(void *argument);
 extern void StartCmdTask(void *argument);
 
+extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
@@ -150,6 +151,8 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartInitTask */
 void StartInitTask(void *argument)
 {
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartInitTask */
   user_init();
 

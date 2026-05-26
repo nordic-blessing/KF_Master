@@ -14,7 +14,7 @@
 #define VISUAL_HEADER_LENGTH    1u
 #define VISUAL_TAIL           0xFF
 #define VISUAL_TAIL_LENGTH      1u
-#define VISUAL_DATA_LENGTH      11
+#define VISUAL_DATA_LENGTH      13
 
 #define MCU_CMD_Spear1          0x01    // 矛1
 #define MCU_CMD_Fist1           0x02    // 拳1
@@ -24,12 +24,13 @@
 #define MCU_CMD_Spear2          0x06    // 矛2
 
 #define VISUAL_CMD_Spearhead    0x07    // 视觉应答武器头
-#define VISUAL_CMD_assemble     0x08    // 视觉发送对接状态
+#define VISUAL_CMD_assemble     0x0A    // 视觉发送对接状态
 
-#define MCU_CMD_Arena           0x09
+#define MCU_CMD_Arena           0x08
 
-#define VISUAL_CMD_Arena        0x0A    // 九宫格
-#define VISUAL_CMD_Arena_Put    0x0B
+#define VISUAL_CMD_Arena_1      0x09    // 九宫格
+#define VISUAL_CMD_Arena_2      0x0B
+#define VISUAL_CMD_Arena_Put    0x0C
 
 typedef struct {
     uint8_t cmd;

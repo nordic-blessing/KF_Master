@@ -21,15 +21,19 @@ void Arena_Task(void) {
     CommandSendPoint(RAMP_UP_X, RAMP_UP_Y, 0.0f, 1);
 
     for (;KFS_left > 0; KFS_left--) {
+        uart_printf("[Arena] %d left\r\n", KFS_left);
         CommandSendPoint(ARENA_WAIT_X, ARENA_WAIT_Y, 0.0f, 1);
-        uart_printf("[Arena] wait\r\n");
 
         // 视觉识别
-        Visual_Send(MCU_CMD_Arena);
-        osEventFlagsWait(KFQEventHandle,
+        wait: Visual_Send(MCU_CMD_Arena);
+        uart_printf("[Arena] wait\r\n");
+        uint32_t flag = osEventFlagsWait(KFQEventHandle,
                     EVT_ARENA_VISUAL,
                     osFlagsWaitAny,
-                    osWaitForever);
+                    200);
+        if (flag == osErrorTimeout) {
+            goto wait;
+        }
 
         uart_printf("[Arena] put %d\r\n", visualData.num);
         switch (visualData.num) {
@@ -37,7 +41,7 @@ void Arena_Task(void) {
             case 2:
             case 3: {
                 // 上车逻辑
-                uart_printf("[Arena] up to R1\r\n]");
+                uart_printf("[Arena] up to R1\r\n");
 
                 // 放置KFS
                 osEventFlagsWait(KFQEventHandle,
@@ -69,7 +73,7 @@ void Arena_Task(void) {
                 break;
         }
         uart_printf("[Arena] put done\r\n");
-        KFS_left --;
+        DELAY(20000);
     }
 
     uart_printf("[Arena] task done\r\n");

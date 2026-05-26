@@ -31,6 +31,19 @@ ProtocolHandler visual_uart={
 /* Private function declarations ---------------------------------------------*/
 /* function prototypes -------------------------------------------------------*/
 
+uint16_t calculateCRC16(const uint8_t* data, size_t length) {
+    uint16_t crc = 0xFFFF;
+
+    for (size_t i = 0; i < length; i++) {
+        crc ^= (uint16_t)data[i] << 8;
+        for (int j = 8; j--;) {
+            crc = (crc << 1) ^ ((crc & 0x8000) ? 0x1021 : 0);
+        }
+    }
+
+    return crc;
+}
+
 /**
  * PC -> MCU
  * @param data
@@ -51,7 +64,8 @@ void Visual_Receive(uint8_t *data) {
             osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_ASSEMBLE);
         }
             break;
-        case VISUAL_CMD_Arena: {
+        case VISUAL_CMD_Arena_1:
+        case VISUAL_CMD_Arena_2:{
             visualData.num = data[2];
             osEventFlagsSet(KFQEventHandle, EVT_ARENA_VISUAL);
         }
@@ -72,7 +86,7 @@ void Visual_Receive(uint8_t *data) {
  * @param CMD
  */
 void Visual_Send(uint8_t CMD) {
-    uint8_t tx_data[4]={0};
+    uint8_t tx_data[13]={0};
 
     tx_data[0] = VISUAL_HEADER;
     tx_data[1] = CMD;
@@ -93,9 +107,13 @@ void Visual_Send(uint8_t CMD) {
         default:
             break;
     }
-    tx_data[3] = VISUAL_TAIL;
 
-    HAL_UART_Transmit(&VISUAL_UART, tx_data, 4, 100);
+    tx_data[10] = (uint8_t)(calculateCRC16(tx_data, 10) >> 8) & 0xFF;
+    tx_data[11] = (uint8_t)(calculateCRC16(tx_data, 10) & 0xFF);
+
+    tx_data[12] = VISUAL_TAIL;
+
+    HAL_UART_Transmit(&VISUAL_UART, tx_data, 13, 100);
 }
 
 #endif
