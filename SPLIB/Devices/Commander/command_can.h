@@ -34,14 +34,14 @@
 #endif
 
 /* Private macros -----------------------------------------------------------*/
-#define COMMAND_CAN         hcan1
+#define COMMAND_CAN         hcan2
 
 #define COMMAND_MASTER      1
 #define COMMAND_SLAVE       0
 
 #define DEVICE_ADDR         0b001    // 用户自定义 3 bit 设备地址
 
-#define DEVICE_ID           (COMMAND_MASTER << 3)|DEVICE_ADDR
+#define DEVICE_ID           ((COMMAND_MASTER << 3)|DEVICE_ADDR)
 
 /* Private type --------------------------------------------------------------*/
 /* Exported macros -----------------------------------------------------------*/

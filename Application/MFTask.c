@@ -9,6 +9,7 @@
 #include "inc_user.h"
 #include "MFTask.h"
 
+uint8_t MAP = 1; // 默认为红方
 KFS_Type_t KFS_status[12];  // KFS状态表
 MF_Path PATH[MAX_PATH_STEPS];
 uint8_t path_len = 0;       // 路径长度
@@ -62,6 +63,7 @@ void KFS_CheatMessage(uint8_t* buffer) {
     }
 
     if (checksum == buffer[13]) {
+        MAP = buffer[1];
         KFS_status[0] = (buffer[2]>>0) & 0x03;
         KFS_status[1] = (buffer[2]>>2) & 0x03;
         KFS_status[2] = (buffer[2]>>4) & 0x03;

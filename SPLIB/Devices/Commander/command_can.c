@@ -60,45 +60,81 @@ void command_receive(CAN_RxBuffer* rxBuffer) {
         // 从控制器
         uint8_t DeviceAddr = (rxBuffer->header.StdId >> 7) & 0x7;
         uint8_t CmdID = (rxBuffer->header.StdId >> 2) & 0x1F;
+        uint8_t echo_data[8]={0};
 
         switch (DeviceAddr) {
-            // 从设备1 底盘
+            // Slave1 底盘
             case 0b001:{
                 switch (CmdID) {
-                    // 命令0 底盘到达
+                    // CMD_0 底盘到达
                     case COMMAND_CMD_0: {
+                        uart_printf("get arrive flag\r\n");
+                        command_transmit(COMMAND_CMD_8, 0x01, echo_data);
                         osEventFlagsSet(KFQEventHandle, EVT_CHASSIS_ARRIVAL);
                     }
                         break;
 
-                    // 命令1 抬升完成
+                    // CMD_1 抬升完成
                     case COMMAND_CMD_1: {
+                        uart_printf("get lift flag\r\n");
+                        command_transmit(COMMAND_CMD_8, 0x01, echo_data);
                         osEventFlagsSet(KFQEventHandle, EVT_MF_LIFT);
                     }
+                        break;
+
+                    // CMD_2 接收应答
+                    case COMMAND_CMD_2: {
+                        uart_printf("get echo\r\n");
+                        osEventFlagsSet(KFQEventHandle, EVT_CHASSIS_ECHO);
+                    }
+                        break;
                     default:
                         break;
                 }
             }
                 break;
 
-            // 从设备2 机构
+            // Slave2 机构
             case 0b010: {
                 switch (CmdID) {
-                    // 命令0 Spear夹取完成
+                    // CMD_0 Spear准备动作完成
                     case COMMAND_CMD_0: {
+                        osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_PREPARE);
+                    }
+                        break;
+                    // CMD_1 Spear夹取完成
+                    case COMMAND_CMD_1: {
                         osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_CATCH);
                     }
                         break;
 
-                    // 命令1 KFS抓取完成
-                    case COMMAND_CMD_1: {
+                    // CMD_2 KFS抓取完成
+                    case COMMAND_CMD_2: {
                         osEventFlagsSet(KFQEventHandle, EVT_MF_KFS_GRAB);
                     }
                         break;
 
-                    // 命令2 KFS放置完成
-                    case COMMAND_CMD_2: {
-                        osEventFlagsSet(KFQEventHandle, EVT_ARENA_KFS_PUT);
+                    // 命令3 KFS放置完成
+                    case COMMAND_CMD_3: {
+                        if (rxBuffer->data[0] == 1) {
+                            // 放第一个KFS
+                            osEventFlagsSet(KFQEventHandle, EVT_ARENA_KFS_PUT_1);
+                        }else if (rxBuffer->data[0] == 2) {
+                            // 放第二个KFS
+                            osEventFlagsSet(KFQEventHandle, EVT_ARENA_KFS_PUT_2);
+                        }
+                    }
+                        break;
+
+                    // 命令4 命令接收回传
+                    case COMMAND_CMD_4: {
+                        osEventFlagsSet(KFQEventHandle, EVT_MECHANISM_ECHO);
+                    }
+                        break;
+
+                    // 命令5 释放Spear
+                    case COMMAND_CMD_5: {
+                        osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_RELEASE);
                     }
                         break;
                     default:

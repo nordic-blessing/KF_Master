@@ -16,13 +16,13 @@ void StartCmdTask(void *argument) {
                      osWaitForever);
 
     // ============================= MC =============================
-    MC_Task();
+    // MC_Task();
 
     // ============================= MF =============================
     MF_Task();
 
     // =========================== Arena ============================
-    Arena_Task();
+    // Arena_Task();
 
     uart_printf("KF MASTER\r\n");
 

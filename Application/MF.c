@@ -15,48 +15,34 @@ void MF_Task(void) {
     float yaw = 0.0f;
     float x = 3.000f;
     float y = MC_ASSEMBLE_Y;
-    uart_printf("[MF] total %d step\r\n", Action_Buffer_Size);
-    for (uint8_t i = 0; i < Action_Buffer_Size; i++) {
-        switch (Action_Buffer[i].move) {
-            case STAY:
-            case FORWARD:
-                yaw = 0.0f;
-            break;
-            case LEFT:
-                yaw = 90.0f;
-            break;
-            case RIGHT:
-                yaw = -90.0f;
-            break;
-            case BACKWARD:
-                yaw = 180.0f;
-            break;
-            default:
-                break;
-        }
-        uart_printf("[MF] yaw %2f\r\n", yaw);
-        CommandSendPoint(x, y, yaw, 1);
 
+    uart_printf("[MF] total %d step\r\n\r\n", Action_Buffer_Size);
+    for (uint8_t i = 0; i < Action_Buffer_Size; i++) {
+        uart_printf("[MF] step %d\r\n", i);
+
+        // go to current MF
+        // up or down
         switch (Action_Buffer[i].lift) {
             case LEVEL: {
                 uart_printf("[MF] LEVEL\r\n");
-                CommandSendLift(LEVEL);
+                //CommandSendLift(LEVEL);
             }
-                break;
+            break;
             case UP: {
-                uart_printf("[MF] UP\r\n");
                 CommandSendLift(UP);
             }
-                break;
+            break;
             case DOWN: {
-                uart_printf("[MF] DOWN\r\n");
                 CommandSendLift(DOWN);
             }
-                break;
+            break;
             default:
                 break;
         }
 
+        // go center and adjust yaw
+        // change x,y
+        uart_printf("[MF] go %d center\r\n", Action_Buffer[i].target_id);
         switch (Action_Buffer[i].target_id) {
             case -2: {
                 x = KFS_N2_X;
@@ -151,44 +137,101 @@ void MF_Task(void) {
             default:
                 break;
         }
-        uart_printf("[MF] go %d center\r\n", Action_Buffer[i].target_id);
-        CommandSendPoint(x, y, yaw, 1);
+        // CommandSendPoint(x, y, yaw, 1);
 
-        switch (Action_Buffer[i+1].move) {
-            case FORWARD:
-                yaw = 0.0f;
+        // change yaw
+        if (Action_Buffer[i].lift != LEVEL) {
+            switch (Action_Buffer[i+1].move) {
+                case FORWARD:
+                    yaw = 0.0f;
                 break;
-            case LEFT:
-                yaw = 90.0f;
+                case LEFT:
+                    yaw = 90.0f;
                 break;
-            case RIGHT:
-                yaw = -90.0f;
+                case RIGHT:
+                    yaw = -90.0f;
                 break;
-            default:
-                break;
+                default:
+                    break;
+            }
         }
-        uart_printf("[MF] yaw %2f\r\n", yaw);
         CommandSendPoint(x, y, yaw, 1);
 
+        // prepare to lift
+        // change x,y
         switch (Action_Buffer[i+1].move) {
             case FORWARD: {
-                y += MF_D;
+                switch (Action_Buffer[i+1].lift) {
+                    case UP:
+                        y += MF_UP_D;
+                    break;
+                    case DOWN:
+                        y += MF_DOWN_D;
+                    break;
+                    default:
+                        break;
+                }
             }
-                break;
+            break;
             case LEFT: {
-                x -= MF_D;
+                if (MAP == 1) {
+                    switch (Action_Buffer[i+1].lift) {
+                        case UP:
+                            x -= MF_UP_D;
+                        break;
+                        case DOWN:
+                            x -= MF_DOWN_D;
+                        break;
+                        default:
+                            break;
+                    }
+                }else {
+                    switch (Action_Buffer[i+1].lift) {
+                        case UP:
+                            x += MF_UP_D;
+                        break;
+                        case DOWN:
+                            x += MF_DOWN_D;
+                        break;
+                        default:
+                            break;
+                    }
+                }
             }
-                break;
+            break;
             case RIGHT: {
-                x += MF_D;
+                if (MAP == 1) {
+                    switch (Action_Buffer[i+1].lift) {
+                        case UP:
+                            x += MF_UP_D;
+                        break;
+                        case DOWN:
+                            x += MF_DOWN_D;
+                        break;
+                        default:
+                            break;
+                    }
+                }else {
+                    switch (Action_Buffer[i+1].lift) {
+                        case UP:
+                            x -= MF_UP_D;
+                        break;
+                        case DOWN:
+                            x -= MF_DOWN_D;
+                        break;
+                        default:
+                            break;
+                    }
+                }
             }
-                break;
+            break;
             default:
                 break;
         }
         uart_printf("[MF] go %d edge\r\n", Action_Buffer[i].target_id);
         CommandSendPoint(x, y, yaw, 1);
 
+        // grab
         if (Action_Buffer[i].grap) {
             static uint8_t grap_num = 0;
             uint8_t grab_flag = 0;
@@ -196,28 +239,29 @@ void MF_Task(void) {
             switch (Action_Buffer[i].target_id) {
                 case -2:
                 case 0:
-                    grab_flag = 1;
-                    break;
+                    grab_flag = 1; // 通道处抓取
+                break;
 
                 default: {
                     switch (Action_Buffer[i+1].lift) {
                         case UP:
-                            grab_flag = 2;
-                            break;
+                            grab_flag = 2; // 向上抓
+                        break;
                         case DOWN:
-                            grab_flag = 3;
-                            break;
+                            grab_flag = 3; // 向下抓
+                        break;
                         default:
                             break;
                     }
                 }
-                    break;
+                break;
             }
             uart_printf("[MF] grab %d, %d\r\n", grap_num, grab_flag);
             CommandSendGrab(grab_flag, grap_num);
         }else {
             uart_printf("[MF] ungrab\r\n");
         }
+
         uart_printf("\n");
     }
     uart_printf("[MF] task done\r\n");

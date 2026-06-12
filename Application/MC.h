@@ -10,13 +10,13 @@
 #define MC_H
 
 // 武器头坐标
-#define MC_SPEARHEAD_X  1.000f
+#define MC_SPEARHEAD_X  0.855f
 #define MC_SPEARHEAD_Y  0.450f
 #define MC_SPEARHEAD_DY 0.200f
 
 // 对接位置坐标
-#define MC_ASSEMBLE_X   1.800f
-#define MC_ASSEMBLE_Y   2.350f
+#define MC_ASSEMBLE_X   1.245f
+#define MC_ASSEMBLE_Y   1.270f
 
 void MC_Task(void);
 

@@ -61,16 +61,6 @@ const osThreadAttr_t CmdTask_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for SpearheadsSem */
-osSemaphoreId_t SpearheadsSemHandle;
-const osSemaphoreAttr_t SpearheadsSem_attributes = {
-  .name = "SpearheadsSem"
-};
-/* Definitions for KFSSem */
-osSemaphoreId_t KFSSemHandle;
-const osSemaphoreAttr_t KFSSem_attributes = {
-  .name = "KFSSem"
-};
 /* Definitions for KFQEvent */
 osEventFlagsId_t KFQEventHandle;
 const osEventFlagsAttr_t KFQEvent_attributes = {
@@ -101,13 +91,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
-
-  /* Create the semaphores(s) */
-  /* creation of SpearheadsSem */
-  SpearheadsSemHandle = osSemaphoreNew(2, 2, &SpearheadsSem_attributes);
-
-  /* creation of KFSSem */
-  KFSSemHandle = osSemaphoreNew(2, 0, &KFSSem_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */

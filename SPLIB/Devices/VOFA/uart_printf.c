@@ -33,9 +33,9 @@ void uart_printf(const char *format, ...) {
     va_end(args);
 
 #if DEBUG_PRINTF
-    // HAL_UART_Transmit(&PRINTF_UART, (uint8_t *) send_buf, length, 10);
-    CDC_Transmit_FS((uint8_t *) send_buf, length);
-    DELAY(100);
+    HAL_UART_Transmit(&PRINTF_UART, (uint8_t *) send_buf, length, 10);
+    // CDC_Transmit_FS((uint8_t *) send_buf, length);
+    // DELAY(100);
 #endif
 }
 
