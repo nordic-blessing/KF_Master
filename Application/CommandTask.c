@@ -117,7 +117,7 @@ void CommandSendCatchPrepare(void) {
     uint8_t data[8] = {0};
 
     // 等待机构抓取准备结束
-/*#if DEBUG_2
+#if DEBUG_2
     osEventFlagsSet(KFQEventHandle,EVT_MC_SPEAR_PREPARE);
 #else
     osEventFlagsClear(KFQEventHandle,EVT_MECHANISM_ECHO);
@@ -131,11 +131,11 @@ void CommandSendCatchPrepare(void) {
         uart_printf("re prepare\r\n");
     }while (flag == osFlagsErrorTimeout);
 #endif
-    osEventFlagsWait(KFQEventHandle,
-                    EVT_MC_SPEAR_PREPARE,
-                    osFlagsWaitAny,
-                    osWaitForever);
-    DELAY(2);*/
+    // osEventFlagsWait(KFQEventHandle,
+    //                 EVT_MC_SPEAR_PREPARE,
+    //                 osFlagsWaitAny,
+    //                 osWaitForever);
+    DELAY(2);
 }
 
 /**

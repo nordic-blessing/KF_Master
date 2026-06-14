@@ -11,7 +11,7 @@
 
 // MF坐标
 #define MF_UP_D         0.190f
-#define MF_DOWN_D       0.190f
+#define MF_DOWN_D       0.195f
 #define KFS_N2_X        4.200f
 #define KFS_N2_Y        2.600f
 #define KFS_N1_X        3.000f

@@ -57,14 +57,14 @@ void Visual_Receive(uint8_t *data) {
     switch (visualData.cmd) {
         // 视觉检测Spear
         case VISUAL_CMD_Spearhead: {
-            visualData.flag = visualData.data[1];
+            visualData.flag = visualData.data[0];
             osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_DETECT);
         }
             break;
 
         // 对接检测
         case VISUAL_CMD_assemble: {
-            switch (visualData.data[1]) {
+            switch (visualData.data[0]) {
                 case 0x01:
                     osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_ASSEMBLE);
                 break;
@@ -80,7 +80,7 @@ void Visual_Receive(uint8_t *data) {
         //
         case VISUAL_CMD_Arena_1:
         case VISUAL_CMD_Arena_2:{
-            visualData.num = visualData.data[1];
+            visualData.num = visualData.data[0];
             osEventFlagsSet(KFQEventHandle, EVT_ARENA_VISUAL);
         }
             break;

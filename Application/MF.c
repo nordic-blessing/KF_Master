@@ -159,74 +159,79 @@ void MF_Task(void) {
 
         // prepare to lift
         // change x,y
-        switch (Action_Buffer[i+1].move) {
-            case FORWARD: {
-                switch (Action_Buffer[i+1].lift) {
-                    case UP:
-                        y += MF_UP_D;
-                    break;
-                    case DOWN:
-                        y += MF_DOWN_D;
-                    break;
-                    default:
-                        break;
-                }
-            }
-            break;
-            case LEFT: {
-                if (MAP == 1) {
+        if (Action_Buffer[i].target_id == 1 || Action_Buffer[i].target_id == 0) {
+            y += 0.210f;
+        }else {
+            switch (Action_Buffer[i+1].move) {
+                case FORWARD:
+                case STAY: {
                     switch (Action_Buffer[i+1].lift) {
                         case UP:
-                            x -= MF_UP_D;
+                            y += MF_UP_D;
                         break;
                         case DOWN:
-                            x -= MF_DOWN_D;
-                        break;
-                        default:
-                            break;
-                    }
-                }else {
-                    switch (Action_Buffer[i+1].lift) {
-                        case UP:
-                            x += MF_UP_D;
-                        break;
-                        case DOWN:
-                            x += MF_DOWN_D;
+                            y += MF_DOWN_D;
                         break;
                         default:
                             break;
                     }
                 }
-            }
-            break;
-            case RIGHT: {
-                if (MAP == 1) {
-                    switch (Action_Buffer[i+1].lift) {
-                        case UP:
-                            x += MF_UP_D;
-                        break;
-                        case DOWN:
-                            x += MF_DOWN_D;
-                        break;
-                        default:
-                            break;
-                    }
-                }else {
-                    switch (Action_Buffer[i+1].lift) {
-                        case UP:
-                            x -= MF_UP_D;
-                        break;
-                        case DOWN:
-                            x -= MF_DOWN_D;
-                        break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            break;
-            default:
                 break;
+                case LEFT: {
+                    if (MAP == 1) {
+                        switch (Action_Buffer[i+1].lift) {
+                            case UP:
+                                x -= MF_UP_D;
+                            break;
+                            case DOWN:
+                                x -= MF_DOWN_D;
+                            break;
+                            default:
+                                break;
+                        }
+                    }else {
+                        switch (Action_Buffer[i+1].lift) {
+                            case UP:
+                                x += MF_UP_D;
+                            break;
+                            case DOWN:
+                                x += MF_DOWN_D;
+                            break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                break;
+                case RIGHT: {
+                    if (MAP == 1) {
+                        switch (Action_Buffer[i+1].lift) {
+                            case UP:
+                                x += MF_UP_D;
+                            break;
+                            case DOWN:
+                                x += MF_DOWN_D;
+                            break;
+                            default:
+                                break;
+                        }
+                    }else {
+                        switch (Action_Buffer[i+1].lift) {
+                            case UP:
+                                x -= MF_UP_D;
+                            break;
+                            case DOWN:
+                                x -= MF_DOWN_D;
+                            break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                break;
+                default:
+                    break;
+            }
         }
         uart_printf("[MF] go %d edge\r\n", Action_Buffer[i].target_id);
         CommandSendPoint(x, y, yaw, 1);

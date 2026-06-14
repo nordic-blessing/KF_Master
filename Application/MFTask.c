@@ -107,6 +107,7 @@ void KFS_CheatMessage(uint8_t* buffer) {
             if (curr_id == -2) {
                 if (KFS_status[1 - 1] == KFS_TYPE_R2 && grab_count < 2) {
                     PATH[i].grap = true; // 直接在 -2 号位下爪抓 1 号位！
+                    KFS_status[1 - 1] = KFS_TYPE_EMPTY;
                     grab_count++;
                 }
                 continue;
@@ -114,6 +115,7 @@ void KFS_CheatMessage(uint8_t* buffer) {
             if (curr_id == -1) {
                 if (KFS_status[2 - 1] == KFS_TYPE_R2 && grab_count < 2) {
                     PATH[i].grap = true; // 直接在 -1 号位下爪抓 2 号位！
+                    KFS_status[2 - 1] = KFS_TYPE_EMPTY;
                     grab_count++;
                 }
                 continue;
@@ -121,6 +123,7 @@ void KFS_CheatMessage(uint8_t* buffer) {
             if (curr_id == 0) {
                 if (KFS_status[3 - 1] == KFS_TYPE_R2 && grab_count < 2) {
                     PATH[i].grap = true; // 直接在 0 号位下爪抓 3 号位！
+                    KFS_status[3 - 1] = KFS_TYPE_EMPTY;
                     grab_count++;
                 }
                 continue;

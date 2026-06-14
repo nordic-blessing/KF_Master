@@ -60,7 +60,9 @@ void command_receive(CAN_RxBuffer* rxBuffer) {
         // 从控制器
         uint8_t DeviceAddr = (rxBuffer->header.StdId >> 7) & 0x7;
         uint8_t CmdID = (rxBuffer->header.StdId >> 2) & 0x1F;
-        uint8_t echo_data[8]={0};
+        uint8_t echo_arrive[8]={0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+        uint8_t echo_up[8]={0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+        uint8_t echo_down[8]={0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 
         switch (DeviceAddr) {
             // Slave1 底盘
@@ -69,15 +71,19 @@ void command_receive(CAN_RxBuffer* rxBuffer) {
                     // CMD_0 底盘到达
                     case COMMAND_CMD_0: {
                         uart_printf("get arrive flag\r\n");
-                        command_transmit(COMMAND_CMD_8, 0x01, echo_data);
+                        command_transmit(COMMAND_CMD_8, 0x01, echo_arrive);
                         osEventFlagsSet(KFQEventHandle, EVT_CHASSIS_ARRIVAL);
                     }
                         break;
 
                     // CMD_1 抬升完成
                     case COMMAND_CMD_1: {
-                        uart_printf("get lift flag\r\n");
-                        command_transmit(COMMAND_CMD_8, 0x01, echo_data);
+                        if (rxBuffer->data[1] == 0x02) {
+                            uart_printf("get up flag\r\n");
+                        }else if (rxBuffer->data[1] == 0x03) {
+                            uart_printf("get down flag\r\n");
+                        }
+                        command_transmit(COMMAND_CMD_8, 0x01, echo_up);
                         osEventFlagsSet(KFQEventHandle, EVT_MF_LIFT);
                     }
                         break;

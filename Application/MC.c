@@ -22,28 +22,30 @@ void MC_Task(void) {
     while (SpearheadsCount > 1 && SpearheadsCatch > 0) {
         // 机械臂准备动作
         CommandSendCatchPrepare();
-        DELAY(800);
+        DELAY(200);
 
         // 底盘运动到达夹取位置
         CommandSendPoint(MC_SPEARHEAD_X,
                          MC_SPEARHEAD_Y + (float)(SpearheadsNum - SpearheadsCount) * MC_SPEARHEAD_DY,
-                         90.0f,
+                         MAP == 1 ? 90.0f:-90.0f,
                          1);
+        DELAY(1500);
 
         // 视觉检测是否空
         uart_printf("[MC] spearhead %d\r\n", 7-SpearheadsCount);
-        Visual_Send(7-SpearheadsCount);
-#if DEBUG_Visual
-        osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_DETECT);
+//         Visual_Send(7-SpearheadsCount);
+// #if DEBUG_Visual
+//         osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_DETECT);
+//         DELAY(500);
+// #endif
+//         osEventFlagsWait(KFQEventHandle,
+//                         EVT_MC_SPEAR_DETECT,
+//                         osFlagsWaitAny,
+//                         osWaitForever);
         DELAY(500);
-#endif
-        osEventFlagsWait(KFQEventHandle,
-                        EVT_MC_SPEAR_DETECT,
-                        osFlagsWaitAny,
-                        osWaitForever);
 
         // 拿到视觉检测结果
-        if (visualData.flag) {
+        if (/*visualData.flag*/1) {
             // 目标非空，执行抓取
             uart_printf("[MC] | ");
             for (uint8_t i = 0; i < 6; i++) {
@@ -59,7 +61,7 @@ void MC_Task(void) {
 
             // 执行对接
             uart_printf("[MC] assemble\r\n");
-            CommandSendPoint(MC_ASSEMBLE_X, MC_ASSEMBLE_Y, 90.0f, 1); // 前往对接点
+            CommandSendPoint(MC_ASSEMBLE_X, MC_ASSEMBLE_Y, MAP == 1?90.0f:-90.0f, 1); // 前往对接点
 
             // 等待视觉通知对接完成
 #if DEBUG_Visual
