@@ -29,23 +29,23 @@ void MC_Task(void) {
                          MC_SPEARHEAD_Y + (float)(SpearheadsNum - SpearheadsCount) * MC_SPEARHEAD_DY,
                          MAP == 1 ? 90.0f:-90.0f,
                          1);
-        DELAY(1500);
+        DELAY(1000);
 
         // 视觉检测是否空
         uart_printf("[MC] spearhead %d\r\n", 7-SpearheadsCount);
-//         Visual_Send(7-SpearheadsCount);
-// #if DEBUG_Visual
-//         osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_DETECT);
-//         DELAY(500);
-// #endif
-//         osEventFlagsWait(KFQEventHandle,
-//                         EVT_MC_SPEAR_DETECT,
-//                         osFlagsWaitAny,
-//                         osWaitForever);
+        Visual_Send(7-SpearheadsCount);
+#if DEBUG_Visual
+        osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_DETECT);
+        DELAY(500);
+#endif
+        osEventFlagsWait(KFQEventHandle,
+                        EVT_MC_SPEAR_DETECT,
+                        osFlagsWaitAny,
+                        osWaitForever);
         DELAY(500);
 
         // 拿到视觉检测结果
-        if (/*visualData.flag*/1) {
+        if (visualData.flag) {
             // 目标非空，执行抓取
             uart_printf("[MC] | ");
             for (uint8_t i = 0; i < 6; i++) {

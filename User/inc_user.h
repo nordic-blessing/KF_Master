@@ -21,11 +21,13 @@
 
 extern uint8_t MAP; // 1:红方     2:蓝方
 
-#define DEBUG_PRINTF        1
+#define DEBUG_PRINTF        1 // 1:使能debug打印 0:关闭debug打印
+/* 由于 debug打印 和 视觉通信 两者使用同一串口，在进行视觉通信的时候需要关闭debug打印 */
 
 // 事件组
 extern osEventFlagsId_t KFQEventHandle;
-#define EVT_CHASSIS_ECHO        (1U<<0) // 设备间检测
+#define EVT_CHASSIS_ECHO        (1U<<0) // 底盘接收回复
+
 #define EVT_INIT_MAP_GEN        (1U<<1) // MF路线生成
 #define EVT_TASK_START          (1U<<2) // 开启任务
 #define EVT_CHASSIS_ARRIVAL     (1U<<3) // 底盘到达目标状态
@@ -37,15 +39,17 @@ extern osEventFlagsId_t KFQEventHandle;
 #define EVT_MC_SPEAR_ASSEMBLE   (1U<<8) // [MC] 武器头对接
 #define EVT_MC_LEAVE            (1U<<9) // [MC] 离开
 
-#define EVT_MF_LIFT             (1U<<10)  // [MF] 抬升动作
+#define EVT_MF_LIFT             (1U<<10) // [MF] 抬升动作
 #define EVT_MF_KFS_GRAB         (1U<<11) // [MF] 吸取KFS
 
+#define EVT_MECHANISM_ECHO      (1U<<16) // 机构接收回复
+
+// 以下暂时未使用过
 #define EVT_ARENA_VISUAL        (1U<<12) // [Arena] 等待区指导动作
 #define EVT_ARENA_KFS_PUT_1     (1U<<13) // [Arena] KFS放置1
 #define EVT_ARENA_KFS_PUT_2     (1U<<14) // [Arena] KFS放置2
 #define EVT_ARENA_LIFT          (1U<<15) // [Arena] 抬升上R1
 
-#define EVT_MECHANISM_ECHO      (1U<<16)
 
 // #define EVT_CHASSIS_ECHO        (1U<<13)
 

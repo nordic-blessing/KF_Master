@@ -20,8 +20,8 @@ void MF_Task(void) {
     for (uint8_t i = 0; i < Action_Buffer_Size; i++) {
         uart_printf("[MF] step %d\r\n", i);
 
-        // go to current MF
-        // up or down
+        // 前往目标MF
+        // 抬升动作
         switch (Action_Buffer[i].lift) {
             case LEVEL: {
                 uart_printf("[MF] LEVEL\r\n");
@@ -40,8 +40,7 @@ void MF_Task(void) {
                 break;
         }
 
-        // go center and adjust yaw
-        // change x,y
+        // 调整底盘坐标，前往MF中央
         uart_printf("[MF] go %d center\r\n", Action_Buffer[i].target_id);
         switch (Action_Buffer[i].target_id) {
             case -2: {
@@ -137,9 +136,7 @@ void MF_Task(void) {
             default:
                 break;
         }
-        // CommandSendPoint(x, y, yaw, 1);
-
-        // change yaw
+        // 调整底盘朝向
         if (Action_Buffer[i].lift != LEVEL) {
             switch (Action_Buffer[i+1].move) {
                 case FORWARD:
@@ -157,87 +154,94 @@ void MF_Task(void) {
         }
         CommandSendPoint(x, y, yaw, 1);
 
-        // prepare to lift
-        // change x,y
-        if (Action_Buffer[i].target_id == 1 || Action_Buffer[i].target_id == 0) {
-            y += 0.210f;
-        }else {
-            switch (Action_Buffer[i+1].move) {
-                case FORWARD:
-                case STAY: {
-                    switch (Action_Buffer[i+1].lift) {
-                        case UP:
-                            y += MF_UP_D;
-                        break;
-                        case DOWN:
-                            y += MF_DOWN_D;
-                        break;
-                        default:
-                            break;
-                    }
-                }
-                break;
-                case LEFT: {
-                    if (MAP == 1) {
-                        switch (Action_Buffer[i+1].lift) {
-                            case UP:
-                                x -= MF_UP_D;
-                            break;
-                            case DOWN:
-                                x -= MF_DOWN_D;
-                            break;
-                            default:
-                                break;
-                        }
-                    }else {
-                        switch (Action_Buffer[i+1].lift) {
-                            case UP:
-                                x += MF_UP_D;
-                            break;
-                            case DOWN:
-                                x += MF_DOWN_D;
-                            break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-                break;
-                case RIGHT: {
-                    if (MAP == 1) {
-                        switch (Action_Buffer[i+1].lift) {
-                            case UP:
-                                x += MF_UP_D;
-                            break;
-                            case DOWN:
-                                x += MF_DOWN_D;
-                            break;
-                            default:
-                                break;
-                        }
-                    }else {
-                        switch (Action_Buffer[i+1].lift) {
-                            case UP:
-                                x -= MF_UP_D;
-                            break;
-                            case DOWN:
-                                x -= MF_DOWN_D;
-                            break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-                break;
-                default:
-                    break;
-            }
-        }
-        uart_printf("[MF] go %d edge\r\n", Action_Buffer[i].target_id);
-        CommandSendPoint(x, y, yaw, 1);
-
-        // grab
+        // 抓取
         if (Action_Buffer[i].grap) {
+
+            // 准备抓取
+            // 调整底盘坐标，前往MF边缘
+            if (Action_Buffer[i].target_id == 0 || Action_Buffer[i].target_id == -2) {
+                y += 0.210f;
+            }else {
+                switch (Action_Buffer[i+1].move) {
+                    // 下一步动作是前进或者平移
+                    case FORWARD:
+                    case STAY: {
+                        switch (Action_Buffer[i+1].lift) {
+                            case UP: // 下一步动作是抬升
+                                y += MF_UP_D;
+                            break;
+                            case DOWN: // 下一步动作是下降
+                                y += MF_DOWN_D;
+                            break;
+                            default:
+                                break;
+                        }
+                    }
+                    break;
+
+                    // 下一步动作是左移
+                    case LEFT: {
+                        if (MAP == 1) { // 红方
+                            switch (Action_Buffer[i+1].lift) {
+                                case UP: // 下一步动作是抬升
+                                    x -= MF_UP_D;
+                                break;
+                                case DOWN: // 下一步动作是下降
+                                    x -= MF_DOWN_D;
+                                break;
+                                default:
+                                    break;
+                            }
+                        }else { // 蓝方
+                            switch (Action_Buffer[i+1].lift) {
+                                case UP: // 下一步动作是抬升
+                                    x += MF_UP_D;
+                                break;
+                                case DOWN: // 下一步动作是下降
+                                    x += MF_DOWN_D;
+                                break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+
+                    // 下一步动作是右移
+                    case RIGHT: {
+                        if (MAP == 1) { // 红方
+                            switch (Action_Buffer[i+1].lift) {
+                                case UP: // 下一步动作是抬升
+                                    x += MF_UP_D;
+                                break;
+                                case DOWN: // 下一步动作是下降
+                                    x += MF_DOWN_D;
+                                break;
+                                default:
+                                    break;
+                            }
+                        }else { // 蓝方
+                            switch (Action_Buffer[i+1].lift) {
+                                case UP: // 下一步动作是抬升
+                                    x -= MF_UP_D;
+                                break;
+                                case DOWN: // 下一步动作是下降
+                                    x -= MF_DOWN_D;
+                                break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+                    default:
+                        break;
+                }
+            }
+            uart_printf("[MF] go %d edge\r\n", Action_Buffer[i].target_id);
+            CommandSendPoint(x, y, yaw, 1);
+
+            // 发布抓取命令
             static uint8_t grap_num = 0;
             uint8_t grab_flag = 0;
             grap_num++;
@@ -264,6 +268,7 @@ void MF_Task(void) {
             uart_printf("[MF] grab %d, %d\r\n", grap_num, grab_flag);
             CommandSendGrab(grab_flag, grap_num);
         }else {
+            // 不抓取
             uart_printf("[MF] ungrab\r\n");
         }
 

@@ -28,10 +28,16 @@ typedef struct {
     uint8_t height;
 } MF_Node; // MF节点数据
 
+typedef enum {
+    KFS_NONE    = 0, // 不执行
+    KFS_CLEAN   = 1, // 清理
+    KFS_GRAP    = 2  // 抓取
+} MF_GrapAction; // 机械手动作状态
+
 typedef struct {
     int8_t id;
-    bool grap;
-} MF_Path; // MF路径
+    MF_GrapAction grap; // 修改为枚举类型
+} MF_Path;
 
 typedef enum {
     STAY,
@@ -47,13 +53,20 @@ typedef enum {
     DOWN
 } MF_LiftAction; // MF垂直运动状态
 
+typedef enum {
+    ARM_FRONT = 0, // 正前方吸取/排障
+    ARM_LEFT  = 1, // 向左侧伸出吸取
+    ARM_RIGHT = 2  // 向右侧伸出吸取
+} MF_ArmDirection; // 机械手朝向
+
 typedef struct {
     int8_t target_id;
     MF_MoveAction move;
     MF_LiftAction lift;
     uint8_t target_height;
-    bool grap;
-} MF_ActionStep; // MF路径动作
+    MF_GrapAction grap;
+    MF_ArmDirection arm_dir;
+} MF_ActionStep;
 
 extern MF_Node Red_map[MFNum];
 extern MF_Node Blue_map[MFNum];

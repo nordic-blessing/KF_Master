@@ -18,11 +18,11 @@
 #include "inc_user.h"
 #include "CommandTask.h"
 
-#define DEBUG_1 0   // 底盘
-#define DEBUG_2 0   // 机构
+#define DEBUG_1 0   // 底盘 1:用于逻辑测试，不发送CAN消息，不做等待 0:发送CAN消息，并等待回复
+#define DEBUG_2 0   // 机构 1:用于逻辑测试，不发送CAN消息，不做等待 0:发送CAN消息，并等待回复
 
 /**
- * @brief 发送坐标（CMD_0）
+ * @brief 向底盘发送目标坐标（CMD_0）
  * @param x     X坐标 (float)
  * @param y     Y坐标 (float)
  * @param yaw   角度 (float)
@@ -54,10 +54,13 @@ void CommandSendPoint(float x, float y, float yaw, uint8_t start) {
     osEventFlagsSet(KFQEventHandle,EVT_CHASSIS_ARRIVAL);
     uart_printf("[MF] point:%f, %f, %f\r\n", x, y, yaw);
 #else
+    // 等待底盘接收回复
     osEventFlagsClear(KFQEventHandle,EVT_CHASSIS_ECHO);
     static uint32_t flag;
     do{
         command_transmit(COMMAND_CMD_0, 0x1, data);
+
+        // 等待200ms若超时未回复，重复发送并等待
         flag = osEventFlagsWait(KFQEventHandle,
                          EVT_CHASSIS_ECHO,
                          osFlagsWaitAny,
@@ -66,7 +69,7 @@ void CommandSendPoint(float x, float y, float yaw, uint8_t start) {
     }while (flag == osFlagsErrorTimeout);
     uart_printf("[MF] point:%f, %f, %f\r\n", x, y, yaw);
 #endif
-
+    /* 等待底盘到达目标位置 */
     osEventFlagsWait(KFQEventHandle,
                     EVT_CHASSIS_ARRIVAL,
                     osFlagsWaitAny,
@@ -92,16 +95,18 @@ void CommandSendLift(uint8_t lift_flag) {
     static uint32_t flag;
     do{
         command_transmit(COMMAND_CMD_1, 0x1, data);
+
+        // 等待200ms若超时未回复，重复发送并等待
         flag = osEventFlagsWait(KFQEventHandle,
                          EVT_CHASSIS_ECHO,
                          osFlagsWaitAny,
                          200);
         uart_printf("re lift\r\n");
     }while (flag == osFlagsErrorTimeout);
-
-    osEventFlagsClear(KFQEventHandle, EVT_MF_LIFT);
 #endif
     uart_printf("[MF] lift_flag: %d\r\n", lift_flag);
+
+    /* 等待底盘抬升动作完成 */
     osEventFlagsWait(KFQEventHandle,
                     EVT_MF_LIFT,
                     osFlagsWaitAny,
@@ -116,12 +121,13 @@ void CommandSendLift(uint8_t lift_flag) {
 void CommandSendCatchPrepare(void) {
     uint8_t data[8] = {0};
 
-    // 等待机构抓取准备结束
 #if DEBUG_2
     osEventFlagsSet(KFQEventHandle,EVT_MC_SPEAR_PREPARE);
 #else
     osEventFlagsClear(KFQEventHandle,EVT_MECHANISM_ECHO);
     static uint32_t flag;
+
+    // 等待200ms若超时未回复，重复发送并等待
     do{
         command_transmit(COMMAND_CMD_2, 0x1, data);
         flag = osEventFlagsWait(KFQEventHandle,
@@ -131,10 +137,12 @@ void CommandSendCatchPrepare(void) {
         uart_printf("re prepare\r\n");
     }while (flag == osFlagsErrorTimeout);
 #endif
+    // 等待机构抓取准备结束
     // osEventFlagsWait(KFQEventHandle,
     //                 EVT_MC_SPEAR_PREPARE,
     //                 osFlagsWaitAny,
     //                 osWaitForever);
+    uart_printf("prepare done\r\n");
     DELAY(2);
 }
 
@@ -153,6 +161,7 @@ void CommandSendCatch(void) {
 #else
     osEventFlagsClear(KFQEventHandle,EVT_MECHANISM_ECHO);
     static uint32_t flag;
+    // 等待200ms若超时未回复，重复发送并等待
     do{
         command_transmit(COMMAND_CMD_3, 0x1, data);
         flag = osEventFlagsWait(KFQEventHandle,
@@ -162,10 +171,12 @@ void CommandSendCatch(void) {
         uart_printf("re catch\r\n");
     }while (flag == osFlagsErrorTimeout);
 #endif
+    // 等待抓取动作完成
     osEventFlagsWait(KFQEventHandle,
                     EVT_MC_SPEAR_CATCH,
                     osFlagsWaitAny,
                     osWaitForever);
+    uart_printf("catch done\r\n");
     DELAY(2);
 }
 
@@ -180,6 +191,8 @@ void CommandSendRelease(void) {
 #else
     osEventFlagsClear(KFQEventHandle,EVT_MECHANISM_ECHO);
     static uint32_t flag;
+
+    // 等待200ms若超时未回复，重复发送并等待
     do{
         command_transmit(COMMAND_CMD_4, 0x1, data);
         flag = osEventFlagsWait(KFQEventHandle,
@@ -189,10 +202,11 @@ void CommandSendRelease(void) {
         uart_printf("re release\r\n");
     }while (flag == osFlagsErrorTimeout);
 #endif
-    osEventFlagsWait(KFQEventHandle,
-                    EVT_MC_SPEAR_RELEASE,
-                    osFlagsWaitAny,
-                    osWaitForever);
+    // 等待释放动作完成
+    // osEventFlagsWait(KFQEventHandle,
+    //                 EVT_MC_SPEAR_RELEASE,
+    //                 osFlagsWaitAny,
+    //                 osWaitForever);
     uart_printf("release done\r\n");
     DELAY(2);
 }
@@ -213,6 +227,8 @@ void CommandSendGrab(uint8_t grab_flag, uint8_t grab_num) {
 #else
     osEventFlagsClear(KFQEventHandle,EVT_MECHANISM_ECHO);
     static uint32_t flag;
+
+    // 等待200ms若超时未回复，重复发送并等待
     do{
         command_transmit(COMMAND_CMD_5, 0x1, data);
         flag = osEventFlagsWait(KFQEventHandle,
@@ -222,12 +238,17 @@ void CommandSendGrab(uint8_t grab_flag, uint8_t grab_num) {
         uart_printf("re grab\r\n");
     }while (flag == osFlagsErrorTimeout);
 #endif
+    // 等待吸取动作完成
     osEventFlagsWait(KFQEventHandle,
                     EVT_MF_KFS_GRAB,
                     osFlagsWaitAny,
                     osWaitForever);
+    uart_printf("grab done\r\n");
     DELAY(2);
 }
+
+
+/* ----------------------- 以下动作未使用过 ----------------------- */
 
 /**
  * @brief 机构放置KFS（CMD_6）
@@ -241,6 +262,7 @@ void CommandSendPut(uint8_t put_flag) {
 #else
     osEventFlagsClear(KFQEventHandle,EVT_MECHANISM_ECHO);
     static uint32_t flag;
+    // 等待200ms若超时未回复，重复发送并等待
     do{
         command_transmit(COMMAND_CMD_6, 0x1, data);
         flag = osEventFlagsWait(KFQEventHandle,
@@ -250,6 +272,7 @@ void CommandSendPut(uint8_t put_flag) {
         uart_printf("re prepare\r\n");
     }while (flag == osFlagsErrorTimeout);
 #endif
+    // 等待放置动作完成
     osEventFlagsWait(KFQEventHandle,
                     EVT_ARENA_KFS_PUT_1,
                     osFlagsWaitAny,

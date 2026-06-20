@@ -31,6 +31,7 @@ ProtocolHandler visual_uart={
 /* Private function declarations ---------------------------------------------*/
 /* function prototypes -------------------------------------------------------*/
 
+// CRC校验计算
 uint16_t calculateCRC16(const uint8_t* data, size_t length) {
     uint16_t crc = 0xFFFF;
 
@@ -66,10 +67,10 @@ void Visual_Receive(uint8_t *data) {
         case VISUAL_CMD_assemble: {
             switch (visualData.data[0]) {
                 case 0x01:
-                    osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_ASSEMBLE);
+                    osEventFlagsSet(KFQEventHandle, EVT_MC_SPEAR_ASSEMBLE); // 对接成功
                 break;
                 case 0x02:
-                    osEventFlagsSet(KFQEventHandle, EVT_MC_LEAVE);
+                    osEventFlagsSet(KFQEventHandle, EVT_MC_LEAVE); // R1离开，R2可以离开MC
                 break;
                 default:
                     break;
@@ -77,7 +78,7 @@ void Visual_Receive(uint8_t *data) {
         }
             break;
 
-        //
+        /* 以下内容从未使用过 */
         case VISUAL_CMD_Arena_1:
         case VISUAL_CMD_Arena_2:{
             visualData.num = visualData.data[0];
@@ -114,6 +115,7 @@ void Visual_Send(uint8_t CMD) {
             tx_data[2] = 0x00;
         }
         break;
+
         case MCU_CMD_Arena: {
             tx_data[2] = 0x00;
         }
